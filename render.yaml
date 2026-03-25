@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: anc-pnc-landing
+    runtime: static
+    staticPublishPath: .
+    buildCommand: ""
+    pullRequestPreviewsEnabled: false
