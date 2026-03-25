@@ -1,15 +1,479 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ANC PNC Visit Dates Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: sans-serif; }
+    .card { background: white; border-radius: 0.75rem; border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1.1rem; border-radius: 0.5rem; font-size: 0.95rem; cursor: pointer; border: none; transition: background 0.15s; }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-primary:hover { background: #1d4ed8; }
+    .btn-outline { background: white; color: #374151; border: 1px solid #d1d5db; }
+    .btn-outline:hover { background: #f9fafb; }
+    .btn-green-outline { background: white; color: #15803d; border: 1px solid #16a34a; }
+    .btn-green-outline:hover { background: #f0fdf4; }
+    .btn-lg { padding: 0.75rem 1.5rem; font-size: 1.05rem; }
+    .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 9999px; font-size: 0.78rem; font-weight: 500; }
+    .alert { border-radius: 0.5rem; padding: 1rem 1.25rem; display: flex; gap: 0.75rem; align-items: flex-start; }
+    .step-num { width: 3rem; height: 3rem; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    pre, .mono { font-family: monospace; white-space: pre-wrap; font-size: 0.85rem; }
+    svg { display: inline-block; vertical-align: middle; }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-b from-gray-50 to-white">
 
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Landing page with installation guide</title>
-    </head>
+<!-- Language Toggle State via JS -->
+<script>
+  let lang = 'gu';
+  function t(gu, en) { return lang === 'gu' ? gu : en; }
+  function toggleLang() {
+    lang = lang === 'gu' ? 'en' : 'gu';
+    document.getElementById('lang-btn').textContent = lang === 'gu' ? 'English' : 'ગુજરાતી';
+    renderAll();
+  }
+  function copyText() {
+    navigator.clipboard.writeText(document.getElementById('example-output').textContent);
+  }
+  function openLink(url) { window.open(url, '_blank'); }
 
-    <body>
-      <div id="root"></div>
-      <script type="module" src="/src/main.tsx"></script>
-    </body>
-  </html>
-  
+  const GROUP_URL = 'https://groups.google.com/g/anc-pnc-visit-calculation-app/';
+  const APP_URL = 'https://play.google.com/store/apps/details?id=com.app.anc_date_calculator';
+
+  const exampleText = `આ એપ્લિકેશન ANC PNC ની તારીખ ને સરળ બનવા સાથ આપસે છેલ્લે ઉદાહરણ એપેલ છે
+
+પહેલા નીચે આપેલ ગ્રુપ ની લિંક માં ક્લિક કરી Join Group પર ક્લિક કરો પછી એની નીચે આપેલ એપ્લિકેશન download ની લિંક પર ક્લિક કરી download કરી લેવી. જો ગ્રુપ જોઇન કરો જીમેલ લોગીન બ્રાઉઝરમાં કોઈ વિકલ્પ નથી.
+
+ગ્રુપ join કરવા માટે ની લિંક:
+https://groups.google.com/g/anc-pnc-visit-calculation-app/
+
+એપ્લિકેશન Download કરવા માટે ની લિંક:
+https://play.google.com/store/apps/details?id=com.app.anc_date_calculator
+
+LMP તારીખ: 02/03/2026, સોમવાર
+
+→ અંદાજિત પ્રસૂતિ તારીખ (EDD)
+07/12/2026, સોમવાર
+
+→ અર્લી ANC નોંધણી (12 અઠવાડિયા સુધી)
+24/05/2026, રવિવાર
+
+→ પ્રથમ ANC મુલાકાત (12 અઠવાડિયા)
+02/03/2026, સોમવાર
+થી
+31/05/2026, રવિવાર
+
+→ બીજી ANC મુલાકાત (20 અઠવાડિયા)
+01/06/2026, સોમવાર
+થી
+20/07/2026, સોમવાર
+
+→ ત્રીજી ANC મુલાકાત (26 અઠવાડિયા)
+21/07/2026, મંગળવાર
+થી
+31/08/2026, સોમવાર
+
+→ ચોથી ANC મુલાકાત (30 અઠવાડિયા)
+01/09/2026, મંગળવાર
+થી
+28/09/2026, સોમવાર
+
+→ પાંચમી ANC મુલાકાત (34 અઠવાડિયા)
+29/09/2026, મંગળવાર
+થી
+26/10/2026, સોમવાર
+
+→ છઠ્ઠી ANC મુલાકાત (36 અઠવાડિયા)
+27/10/2026, મંગળવાર
+થી
+09/11/2026, સોમવાર
+
+→ સાતમી ANC મુલાકાત (38 અઠવાડિયા)
+10/11/2026, મંગળવાર
+થી
+23/11/2026, સોમવાર
+
+→ આઠમી ANC મુલાકાત (40 અઠવાડિયા)
+24/11/2026, મંગળવાર
+થી
+07/12/2026, સોમવાર`;
+
+  function renderAll() {
+    // Header
+    document.getElementById('app-title').textContent = t('ANC PNC વિઝિટ તારીખ કેલ્ક્યુલેટર', 'ANC PNC Visit Dates Calculator');
+    document.getElementById('badge-beta').textContent = t('બીટા ટેસ્ટિંગ', 'Beta Testing');
+
+    // Hero
+    document.getElementById('hero-h1').textContent = t('અમારા બીટા ટેસ્ટિંગ પ્રોગ્રામમાં જોડાઓ', 'Join Our Beta Testing Program');
+    document.getElementById('hero-p').textContent = t('આ એપ્લિકેશન ANC PNC ની તારીખની ગણતરીને સરળ બનાવવા સાથે આપે છે. છેલ્લે ઉદાહરણ એપેલ છે.', 'This application simplifies ANC PNC visit date calculations. Here is an example application.');
+    document.getElementById('btn-join-hero').childNodes[1].textContent = ' ' + t('Google Group માં જોડાઓ', 'Join Google Group');
+    document.getElementById('btn-download-hero').childNodes[1].textContent = ' ' + t('એપ ડાઉનલોડ કરો', 'Download App');
+
+    // Alert
+    document.getElementById('alert-title').textContent = t('ટેસ્ટિંગ મોડ સક્રિય', 'Testing Mode Active');
+    document.getElementById('alert-desc').textContent = t('પહેલા નીચે આપેલ ગ્રુપની લિંકમાં ક્લિક કરી Join Group પર ક્લિક કરો પછી એની નીચે આપેલ એપ્લિકેશન download ની લિંક પર ક્લિક કરી download કરી લેવી.', 'First click on the group link below and click Join Group, then click on the application download link below to download.');
+
+    // Getting Started
+    document.getElementById('gs-title').textContent = t('શરૂઆત કરવી', 'Getting Started');
+
+    // Step 1
+    document.getElementById('s1-title').textContent = t('Google Group માં જોડાઓ', 'Join the Google Group');
+    document.getElementById('s1-desc').textContent = t('અમારા Google Group માં જોડાઈને ટેસ્ટિંગ પ્રોગ્રામની ઍક્સેસ મેળવો', 'Get access to the testing program by joining our Google Group');
+    const s1items = document.querySelectorAll('.s1-item');
+    const s1texts_gu = ['નીચે "Google Group માં જોડાઓ" બટન પર ક્લિક કરો','તમારા Google એકાઉન્ટ સાથે સાઇન ઇન કરો','Google Groups પેજ પર "Join Group" પર ક્લિક કરો','મંજૂરી માટે રાહ જુઓ (સામાન્ય રીતે 24 કલાકની અંદર)','મંજૂર થયા પછી તમને ઇમેઇલ કન્ફર્મેશન મળશે'];
+    const s1texts_en = ['Click the "Join Google Group" button below','Sign in with your Google account','Click "Join Group" on the Google Groups page','Wait for approval (usually within 24 hours)','You\'ll receive an email confirmation once approved'];
+    s1items.forEach((el, i) => el.textContent = t(s1texts_gu[i], s1texts_en[i]));
+    document.getElementById('s1-btn').innerHTML = iconUsers() + ' ' + t('Google Group માં જોડાઓ', 'Join Google Group') + ' ' + iconArrow();
+
+    // Step 2
+    document.getElementById('s2-title').textContent = t('Google Group જોઇન કરવાની વિગતવાર સૂચનાઓ', 'Detailed Google Group Join Instructions');
+    document.getElementById('s2-desc').textContent = t('સ્ક્રીનશોટ સાથે સ્ટેપ બાય સ્ટેપ સૂચનાઓ', 'Step by step instructions with screenshots');
+    document.getElementById('s2-li1').textContent = t('Google Group લિંક પર ક્લિક કરો', 'Click on the Google Group link');
+    document.getElementById('s2-li2').textContent = t('"Join group" બટન પર ક્લિક કરો', 'Click the "Join group" button');
+    document.getElementById('s2-li3').textContent = t('તમારું ડિસ્પ્લે નામ દાખલ કરો (વૈકલ્પિક)', 'Enter your display name (optional)');
+    document.getElementById('s2-li4').textContent = t('સબ્સ્ક્રિપ્શન પસંદગીઓ પસંદ કરો', 'Choose subscription preferences');
+    document.getElementById('s2-li5').textContent = t('"Join group" બટન પર ક્લિક કરો', 'Click "Join group" button');
+    document.getElementById('s2-li6').textContent = t('મંજૂરી માટે રાહ જુઓ (સામાન્ય રીતે 24 કલાકની અંદર)', 'Wait for approval (usually within 24 hours)');
+    document.getElementById('s2-btn').innerHTML = iconUsers() + ' ' + t('હવે Google Group માં જોડાઓ', 'Join Google Group Now') + ' ' + iconArrow();
+
+    // Step 3
+    document.getElementById('s3-title').textContent = t('એપ ડાઉનલોડ અને ઇન્સ્ટોલ કરો', 'Download & Install the App');
+    document.getElementById('s3-desc').textContent = t('મંજૂર થયા પછી, તમે ટેસ્ટિંગ વર્ઝન ડાઉનલોડ કરી શકો છો', 'Once approved, you can download the testing version');
+    const s3items = document.querySelectorAll('.s3-item');
+    const s3texts_gu = ['ગ્રુપ મંજૂર થયા પછી, ડાઉનલોડ લિંક માટે તમારું ઇમેઇલ ચેક કરો','"એપ ડાઉનલોડ કરો" લિંક પર ક્લિક કરો','Android પર: સેટિંગ્સમાં "અજ્ઞાત સ્ત્રોતોમાંથી ઇન્સ્ટોલ કરો" સક્ષમ કરો','ડાઉનલોડ કરેલી ફાઇલ ખોલો અને ઇન્સ્ટોલેશન સૂચનાઓને અનુસરો','સૂચના આપવામાં આવે ત્યારે જરૂરી પરવાનગીઓ આપો'];
+    const s3texts_en = ['After group approval, check your email for the download link','Click the "Download App" link','On Android: Enable "Install from Unknown Sources" in Settings','Open the downloaded file and follow installation prompts','Grant necessary permissions when prompted'];
+    s3items.forEach((el, i) => el.textContent = t(s3texts_gu[i], s3texts_en[i]));
+    document.getElementById('s3-btn').innerHTML = iconDownload() + ' ' + t('ટેસ્ટ એપ ડાઉનલોડ કરો', 'Download Test App') + ' ' + iconArrow();
+
+    // Step 4
+    document.getElementById('s4-title').textContent = t('Play Store માં એકાઉન્ટ સ્વિચ કરો', 'Switch Account in Play Store');
+    document.getElementById('s4-desc').textContent = t('જો એપ્લિકેશન Play Store માં દેખાતી નથી', 'If the application is not showing in Play Store');
+    document.getElementById('s4-alert').textContent = t('જો તમે Google Group માં જોડાયા પછી Play Store માં એપ દેખાતી નથી, તો તમે બીજા Google એકાઉન્ટથી ગ્રુપમાં જોડાયા હશો. નીચેની સૂચનાઓ અનુસરો:', 'If the app is not showing in Play Store after joining the Google Group, you may have joined with a different Google account. Follow these instructions:');
+    document.getElementById('s4-img-caption').textContent = t('જો તમને આ સ્ક્રીન દેખાય છે:', 'If you see this screen:');
+    document.getElementById('s4-sub-title').textContent = t('Play Store માં એકાઉન્ટ બદલવાની સૂચનાઓ:', 'Instructions to change account in Play Store:');
+    const s4items = document.querySelectorAll('.s4-item');
+    const s4texts_gu = ['Play Store એપ ખોલો','ઉપર જમણી બાજુએ તમારી પ્રોફાઇલ આઇકન પર ટેપ કરો','તમારા નામની બાજુમાં નીચે તીર પર ટેપ કરો','એ Google એકાઉન્ટ પસંદ કરો જેનાથી તમે Google Group માં જોડાયા હતા','હવે ફરીથી એપ શોધો'];
+    const s4texts_en = ['Open the Play Store app','Tap on your profile icon in the top right','Tap the down arrow next to your name','Select the Google account you used to join the Google Group','Now search for the app again'];
+    s4items.forEach((el, i) => el.textContent = t(s4texts_gu[i], s4texts_en[i]));
+    document.getElementById('s4-remember-title').textContent = t('યાદ રાખો:', 'Remember:');
+    document.getElementById('s4-remember-desc').textContent = t('તમારે એ જ Google એકાઉન્ટથી Play Store માં લોગ ઇન કરવું પડશે જેનાથી તમે Google Group માં જોડાયા છો.', 'You must be logged into Play Store with the same Google account you used to join the Google Group.');
+
+    // Share section
+    document.getElementById('share-title').textContent = t('શેર અને એક્સપોર્ટ કરો', 'Share and Export');
+    document.getElementById('share-desc').textContent = t('ગણતરી પરિણામો કેવી રીતે શેર કરવા તેનું ઉદાહરણ', 'Example of how to share calculation results');
+    document.getElementById('share-card-title').textContent = t('ઉદાહરણ આઉટપુટ', 'Example Output');
+    document.getElementById('btn-copy').innerHTML = iconCopy() + ' ' + t('કોપી કરો', 'Copy');
+    document.getElementById('btn-share').innerHTML = iconShare() + ' ' + t('શેર કરો', 'Share');
+    document.getElementById('btn-pdf').innerHTML = iconFile() + ' ' + t('PDF એક્સપોર્ટ કરો', 'Export PDF');
+    document.getElementById('share-card-desc').textContent = t('આ એપ્લિકેશન દ્વારા જનરેટ થયેલ ઉદાહરણ આઉટપુટ', 'Example output generated by the application');
+    document.getElementById('anc-label').textContent = t('ANC મુલાકાત સ્ક્રીન', 'ANC Visit Screen');
+    document.getElementById('pnc-label').textContent = t('PNC મુલાકાત સ્ક્રીન', 'PNC Visit Screen');
+
+    // FAQ
+    document.getElementById('faq-title').textContent = t('વારંવાર પૂછાતા પ્રશ્નો', 'Frequently Asked Questions');
+    const faqQs = document.querySelectorAll('.faq-q');
+    const faqAs = document.querySelectorAll('.faq-a');
+    const faqQgu = ['ગ્રુપ મંજૂરીમાં કેટલો સમય લાગે છે?','શું એપ ઇન્સ્ટોલ કરવી સુરક્ષિત છે?','જો મને બગ્સ મળે તો શું?','શું હું એપ બીજાઓ સાથે શેર કરી શકું?'];
+    const faqQen = ['How long does group approval take?','Is the app safe to install?','What if I find bugs?','Can I share the app with others?'];
+    const faqAgu = ['સામાન્ય રીતે 24 કલાકની અંદર. તમને મંજૂર થયા પછી ઇમેઇલ સૂચના મળશે.','હા! એપ સુરક્ષિત છે પરંતુ ખાસ ઇન્સ્ટોલેશન પરવાનગીઓની જરૂર છે કારણ કે તે ટેસ્ટિંગ વર્ઝન છે, અધિકૃત એપ સ્ટોરમાંથી નથી.','કૃપા કરીને તેને અમારા Google Group માં જાણ કરો! તમારો પ્રતિસાદ અમૂલ્ય છે અને અમને એપ સુધારવામાં મદદ કરે છે.','કૃપા કરીને તેમને Google Group માં જોડાવા માટે નિર્દેશિત કરો. એપની ઍક્સેસ માટે તેઓએ મંજૂર ટેસ્ટર્સ હોવા જરૂરી છે.'];
+    const faqAen = ['Typically within 24 hours. You\'ll receive an email notification once you\'re approved.','Yes! The app is safe but requires special installation permissions because it\'s a testing version, not from the official app store.','Please report them in our Google Group! Your feedback is invaluable and helps us improve the app.','Please direct them to join the Google Group instead. They need to be approved testers to access the app.'];
+    faqQs.forEach((el, i) => el.textContent = t(faqQgu[i], faqQen[i]));
+    faqAs.forEach((el, i) => el.textContent = t(faqAgu[i], faqAen[i]));
+
+    // Quick Links
+    document.getElementById('ql-title').textContent = t('ઝડપી લિંક્સ', 'Quick Links');
+    document.getElementById('ql-access').textContent = t('ઍક્સેસ માટે આવશ્યક', 'Required for access');
+    document.getElementById('ql-dl-label').textContent = t('ડાઉનલોડ', 'Download');
+    document.getElementById('ql-dl-access').textContent = t('ગ્રુપ મંજૂર થયા પછી ઉપલબ્ધ', 'Available after group approval');
+
+    // Footer
+    document.getElementById('footer-text').textContent = t('ANC PNC વિઝિટ ડેટ કેલ્ક્યુલેટર - બીટા ટેસ્ટિંગ', 'ANC PNC Visit Date Calculator - Beta Testing');
+  }
+
+  function iconUsers() { return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'; }
+  function iconDownload() { return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>'; }
+  function iconArrow() { return '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>'; }
+  function iconCopy() { return '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'; }
+  function iconShare() { return '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>'; }
+  function iconFile() { return '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>'; }
+  function iconAlert() { return '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'; }
+  function iconCheck() { return '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>'; }
+</script>
+
+<!-- HEADER -->
+<header class="container mx-auto px-4 py-8">
+  <div class="flex items-center justify-between flex-wrap gap-3">
+    <div class="flex items-center gap-3">
+      <img src="src/assets/5e51f4bb9f92755118d2d3f75e42783d31be32a5.png" alt="App Logo" class="w-12 h-12 rounded-full object-cover" onerror="this.style.display='none'" />
+      <span id="app-title" class="text-xl font-semibold">ANC PNC વિઝિટ તારીખ કેલ્ક્યુલેટર</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span id="badge-beta" class="badge bg-amber-100 text-amber-800 border border-amber-300">બીટા ટેસ્ટિંગ</span>
+      <button onclick="toggleLang()" class="btn btn-outline text-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span id="lang-btn">English</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="container mx-auto px-4 py-16 text-center">
+  <div class="max-w-3xl mx-auto">
+    <h1 id="hero-h1" class="text-4xl font-bold mb-6">અમારા બીટા ટેસ્ટિંગ પ્રોગ્રામમાં જોડાઓ</h1>
+    <p id="hero-p" class="text-xl text-gray-600 mb-8">આ એપ્લિકેશન ANC PNC ની તારીખની ગણતરીને સરળ બનાવવા સાથે આપે છે.</p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+      <button id="btn-join-hero" onclick="openLink(GROUP_URL)" class="btn btn-primary btn-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Google Group માં જોડાઓ
+      </button>
+      <button id="btn-download-hero" onclick="openLink(APP_URL)" class="btn btn-outline btn-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        એપ ડાઉનલોડ કરો
+      </button>
+    </div>
+    <img src="src/assets/graphic_white_phone.png" alt="App Preview" class="w-full rounded-2xl shadow-2xl" onerror="this.style.display='none'" />
+  </div>
+</section>
+
+<!-- ALERT -->
+<section class="container mx-auto px-4 py-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="alert border border-amber-300 bg-amber-50">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <div>
+        <p id="alert-title" class="font-semibold text-amber-800 mb-1">ટેસ્ટિંગ મોડ સક્રિય</p>
+        <p id="alert-desc" class="text-amber-700 text-sm">પહેલા નીચે આપેલ ગ્રુપની લિંકમાં ક્લિક કરી Join Group પર ક્લિક કરો.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GETTING STARTED -->
+<section class="container mx-auto px-4 py-16">
+  <div class="max-w-4xl mx-auto">
+    <h2 id="gs-title" class="text-3xl font-bold text-center mb-12">શરૂઆત કરવી</h2>
+    <div class="space-y-6">
+
+      <!-- Step 1 -->
+      <div class="card p-6">
+        <div class="flex items-start gap-4 mb-4">
+          <div class="step-num bg-blue-100 text-blue-700 font-bold">1</div>
+          <div>
+            <h3 id="s1-title" class="text-xl font-bold mb-1">Google Group માં જોડાઓ</h3>
+            <p id="s1-desc" class="text-gray-500 text-sm">અમારા Google Group માં જોડાઈને ટેસ્ટિંગ પ્રોગ્રામની ઍક્સેસ મેળવો</p>
+          </div>
+        </div>
+        <div class="pl-16">
+          <ol class="space-y-2 list-decimal list-inside text-gray-700 text-sm">
+            <li class="s1-item">નીચે "Google Group માં જોડાઓ" બટન પર ક્લિક કરો</li>
+            <li class="s1-item">તમારા Google એકાઉન્ટ સાથે સાઇન ઇન કરો</li>
+            <li class="s1-item">Google Groups પેજ પર "Join Group" પર ક્લિક કરો</li>
+            <li class="s1-item">મંજૂરી માટે રાહ જુઓ (સામાન્ય રીતે 24 કલાકની અંદર)</li>
+            <li class="s1-item">મંજૂર થયા પછી તમને ઇમેઇલ કન્ફર્મેશન મળશે</li>
+          </ol>
+          <button id="s1-btn" onclick="openLink(GROUP_URL)" class="btn btn-primary mt-5 text-sm"></button>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="card p-6">
+        <div class="flex items-start gap-4 mb-4">
+          <div class="step-num bg-purple-100 text-purple-700 font-bold">2</div>
+          <div>
+            <h3 id="s2-title" class="text-xl font-bold mb-1">Google Group જોઇન કરવાની વિગતવાર સૂચનાઓ</h3>
+            <p id="s2-desc" class="text-gray-500 text-sm">સ્ક્રીનશોટ સાથે સ્ટેપ બાય સ્ટેપ સૂચનાઓ</p>
+          </div>
+        </div>
+        <div class="pl-16">
+          <ol class="space-y-4 list-decimal list-inside text-gray-700 text-sm">
+            <li>
+              <span id="s2-li1">Google Group લિંક પર ક્લિક કરો</span>
+              <div class="mt-2 ml-4">
+                <img src="src/assets/732499850d02caa95209e2f6777a03ea3acc4b8d.png" alt="Group Link" class="max-w-sm w-full rounded-lg border shadow-sm" onerror="this.style.display='none'" />
+              </div>
+            </li>
+            <li>
+              <span id="s2-li2">"Join group" બટન પર ક્લિક કરો</span>
+              <div class="mt-2 ml-4">
+                <img src="src/assets/6a3e72c1f3ab595698e3eafd27771039fa71bdf0.png" alt="Join Group Screen" class="max-w-sm w-full rounded-lg border shadow-sm" onerror="this.style.display='none'" />
+              </div>
+            </li>
+            <li id="s2-li3">તમારું ડિસ્પ્લે નામ દાખલ કરો (વૈકલ્પિક)</li>
+            <li id="s2-li4">સબ્સ્ક્રિપ્શન પસંદગીઓ પસંદ કરો</li>
+            <li id="s2-li5">"Join group" બટન પર ક્લિક કરો</li>
+            <li id="s2-li6">મંજૂરી માટે રાહ જુઓ (સામાન્ય રીતે 24 કલાકની અંદર)</li>
+          </ol>
+          <button id="s2-btn" onclick="openLink(GROUP_URL)" class="btn btn-primary mt-5 text-sm"></button>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="card p-6">
+        <div class="flex items-start gap-4 mb-4">
+          <div class="step-num bg-green-100 text-green-700 font-bold">3</div>
+          <div>
+            <h3 id="s3-title" class="text-xl font-bold mb-1">એપ ડાઉનલોડ અને ઇન્સ્ટોલ કરો</h3>
+            <p id="s3-desc" class="text-gray-500 text-sm">મંજૂર થયા પછી, તમે ટેસ્ટિંગ વર્ઝન ડાઉનલોડ કરી શકો છો</p>
+          </div>
+        </div>
+        <div class="pl-16">
+          <ol class="space-y-2 list-decimal list-inside text-gray-700 text-sm mb-5">
+            <li class="s3-item">ગ્રુપ મંજૂર થયા પછી, ડાઉનલોડ લિંક માટે તમારું ઇમેઇલ ચેક કરો</li>
+            <li class="s3-item">"એપ ડાઉનલોડ કરો" લિંક પર ક્લિક કરો</li>
+            <li class="s3-item">Android પર: સેટિંગ્સમાં "અજ્ઞાત સ્ત્રોતોમાંથી ઇન્સ્ટોલ કરો" સક્ષમ કરો</li>
+            <li class="s3-item">ડાઉનલોડ કરેલી ફાઇલ ખોલો અને ઇન્સ્ટોલેશન સૂચનાઓને અનુસરો</li>
+            <li class="s3-item">સૂચના આપવામાં આવે ત્યારે જરૂરી પરવાનગીઓ આપો</li>
+          </ol>
+          <button id="s3-btn" onclick="openLink(APP_URL)" class="btn btn-green-outline text-sm"></button>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="card p-6">
+        <div class="flex items-start gap-4 mb-4">
+          <div class="step-num bg-orange-100 text-orange-700 font-bold">4</div>
+          <div>
+            <h3 id="s4-title" class="text-xl font-bold mb-1">Play Store માં એકાઉન્ટ સ્વિચ કરો</h3>
+            <p id="s4-desc" class="text-gray-500 text-sm">જો એપ્લિકેશન Play Store માં દેખાતી નથી</p>
+          </div>
+        </div>
+        <div class="pl-16">
+          <div class="alert border border-orange-300 bg-orange-50 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ea580c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p id="s4-alert" class="text-orange-700 text-sm">જો તમે Google Group માં જોડાયા પછી Play Store માં એપ દેખાતી નથી...</p>
+          </div>
+          <div class="mb-4">
+            <img src="src/assets/6e19e12c548e1a63a47f753599f624b2bb41d7cc.png" alt="App Not Found" class="max-w-sm w-full rounded-lg border shadow-sm" onerror="this.style.display='none'" />
+            <p id="s4-img-caption" class="text-sm text-gray-600 mt-2">જો તમને આ સ્ક્રીન દેખાય છે:</p>
+          </div>
+          <h4 id="s4-sub-title" class="font-semibold text-orange-700 mb-3 text-sm">Play Store માં એકાઉન્ટ બદલવાની સૂચનાઓ:</h4>
+          <ol class="space-y-2 list-decimal list-inside text-gray-700 text-sm mb-4">
+            <li class="s4-item">Play Store એપ ખોલો</li>
+            <li class="s4-item">ઉપર જમણી બાજુએ તમારી પ્રોફાઇલ આઇકન પર ટેપ કરો</li>
+            <li class="s4-item">તમારા નામની બાજુમાં નીચે તીર પર ટેપ કરો</li>
+            <li class="s4-item">એ Google એકાઉન્ટ પસંદ કરો જેનાથી તમે Google Group માં જોડાયા હતા</li>
+            <li class="s4-item">હવે ફરીથી એપ શોધો</li>
+          </ol>
+          <div class="alert border border-blue-200 bg-blue-50">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div>
+              <p id="s4-remember-title" class="font-semibold text-blue-800 text-sm mb-1">યાદ રાખો:</p>
+              <p id="s4-remember-desc" class="text-blue-700 text-sm">તમારે એ જ Google એકાઉન્ટથી Play Store માં લોગ ઇન કરવું પડશે.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SHARE & EXPORT -->
+<section class="px-4 py-16 bg-gradient-to-br from-blue-50 to-purple-50">
+  <div class="container mx-auto max-w-4xl">
+    <h2 id="share-title" class="text-3xl font-bold text-center mb-3">શેર અને એક્સપોર્ટ કરો</h2>
+    <p id="share-desc" class="text-center text-gray-600 mb-8">ગણતરી પરિણામો કેવી રીતે શેર કરવા તેનું ઉદાહરણ</p>
+    <div class="card border-2 border-blue-200 p-6">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-2">
+        <h3 id="share-card-title" class="text-xl font-bold">ઉદાહરણ આઉટપુટ</h3>
+        <div class="flex gap-2 flex-wrap">
+          <button id="btn-copy" onclick="copyText()" class="btn btn-outline text-xs"></button>
+          <button id="btn-share" class="btn btn-outline text-xs"></button>
+          <button id="btn-pdf" class="btn btn-outline text-xs"></button>
+        </div>
+      </div>
+      <p id="share-card-desc" class="text-gray-500 text-sm mb-4">આ એપ્લિકેશન દ્વારા જનરેટ થયેલ ઉદાહરણ આઉટપુટ</p>
+      <div id="example-output" class="bg-white p-5 rounded-lg border mono text-sm leading-relaxed"></div>
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h4 id="anc-label" class="font-semibold mb-2 text-sm">ANC મુલાકાત સ્ક્રીન</h4>
+          <img src="src/assets/9cdb8b5ffc6f161cf4f706d8a04efb3bc3aefed6.png" alt="ANC Calculator Screen" class="w-full rounded-lg border shadow-sm" onerror="this.style.display='none'" />
+        </div>
+        <div>
+          <h4 id="pnc-label" class="font-semibold mb-2 text-sm">PNC મુલાકાત સ્ક્રીન</h4>
+          <img src="src/assets/3e70eb464b6752d0a9dd431e71e3d240af761756.png" alt="PNC Calculator Screen" class="w-full rounded-lg border shadow-sm" onerror="this.style.display='none'" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="container mx-auto px-4 py-16">
+  <div class="max-w-3xl mx-auto">
+    <h2 id="faq-title" class="text-3xl font-bold text-center mb-10">વારંવાર પૂછાતા પ્રશ્નો</h2>
+    <div class="space-y-4">
+      <div class="card p-5">
+        <h3 class="faq-q font-semibold mb-2">ગ્રુપ મંજૂરીમાં કેટલો સમય લાગે છે?</h3>
+        <p class="faq-a text-gray-700 text-sm">સામાન્ય રીતે 24 કલાકની અંદર. તમને મંજૂર થયા પછી ઇમેઇલ સૂચના મળશે.</p>
+      </div>
+      <div class="card p-5">
+        <h3 class="faq-q font-semibold mb-2">શું એપ ઇન્સ્ટોલ કરવી સુરક્ષિત છે?</h3>
+        <p class="faq-a text-gray-700 text-sm">હા! એપ સુરક્ષિત છે પરંતુ ખાસ ઇન્સ્ટોલેશન પરવાનગીઓની જરૂર છે.</p>
+      </div>
+      <div class="card p-5">
+        <h3 class="faq-q font-semibold mb-2">જો મને બગ્સ મળે તો શું?</h3>
+        <p class="faq-a text-gray-700 text-sm">કૃપા કરીને તેને અમારા Google Group માં જાણ કરો!</p>
+      </div>
+      <div class="card p-5">
+        <h3 class="faq-q font-semibold mb-2">શું હું એપ બીજાઓ સાથે શેર કરી શકું?</h3>
+        <p class="faq-a text-gray-700 text-sm">કૃપા કરીને તેમને Google Group માં જોડાવા માટે નિર્દેશિત કરો.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUICK LINKS -->
+<section class="bg-gray-50 px-4 py-16">
+  <div class="container mx-auto max-w-4xl">
+    <h2 id="ql-title" class="text-2xl font-bold text-center mb-8">ઝડપી લિંક્સ</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="card border-2 border-blue-200 hover:border-blue-400 transition-colors cursor-pointer p-6 flex items-center gap-4" onclick="openLink(GROUP_URL)">
+        <div class="step-num bg-blue-100">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <h3 class="font-semibold text-base mb-1">Google Group</h3>
+          <p class="text-xs text-gray-500 break-all mb-1">https://groups.google.com/g/anc-pnc-visit-calculation-app/</p>
+          <span class="text-xs text-green-700">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span id="ql-access">ઍક્સેસ માટે આવશ્યક</span>
+          </span>
+        </div>
+      </div>
+      <div class="card border-2 border-green-200 hover:border-green-400 transition-colors cursor-pointer p-6 flex items-center gap-4" onclick="openLink(APP_URL)">
+        <div class="step-num bg-green-100">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </div>
+        <div>
+          <h3 id="ql-dl-label" class="font-semibold text-base mb-1">ડાઉનલોડ</h3>
+          <p class="text-xs text-gray-500 break-all mb-1">https://play.google.com/store/apps/details?id=com.app.anc_date_calculator</p>
+          <span id="ql-dl-access" class="text-xs text-gray-500">ગ્રુપ મંજૂર થયા પછી ઉપલબ્ધ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="text-center py-8 text-gray-400 text-sm">
+  <p id="footer-text">ANC PNC વિઝિટ ડેટ કેલ્ક્યુલેટર - બીટા ટેસ્ટિંગ</p>
+</footer>
+
+<script>
+  // Populate example output
+  document.getElementById('example-output').textContent = exampleText;
+  // Init button labels
+  document.getElementById('s1-btn').innerHTML = iconUsers() + ' ' + t('Google Group માં જોડાઓ', 'Join Google Group') + ' ' + iconArrow();
+  document.getElementById('s2-btn').innerHTML = iconUsers() + ' ' + t('હવે Google Group માં જોડાઓ', 'Join Google Group Now') + ' ' + iconArrow();
+  document.getElementById('s3-btn').innerHTML = iconDownload() + ' ' + t('ટેસ્ટ એપ ડાઉનલોડ કરો', 'Download Test App') + ' ' + iconArrow();
+  document.getElementById('btn-copy').innerHTML = iconCopy() + ' ' + t('કોપી કરો', 'Copy');
+  document.getElementById('btn-share').innerHTML = iconShare() + ' ' + t('શેર કરો', 'Share');
+  document.getElementById('btn-pdf').innerHTML = iconFile() + ' ' + t('PDF એક્સપોર્ટ કરો', 'Export PDF');
+</script>
+
+</body>
+</html>
